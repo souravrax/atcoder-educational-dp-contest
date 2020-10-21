@@ -1,3 +1,4 @@
+![](https://img.atcoder.jp/assets/logo.png)
 # Educational DP Contest
 
 ### About the Contest
