@@ -1,13 +1,12 @@
 /**
- *  author: sourav rakshit
- *  created: 06.01.2021 23:13:11
+ *  author: souravrax
+ *  created: 06.03.2021 11:26:30
 **/
-/* 
-#pragma GCC optimize("O3")
-#pragma GCC target ("avx2")
-#pragma GCC optimize("unroll-loops")
-#pragma GCC target("sse,sse2,sse3,ssse3,sse4,popcnt,abm,mmx,avx,tune=native")
-*/
+
+// #pragma GCC optimize("O3")
+// #pragma GCC target ("avx2")
+// #pragma GCC optimize("unroll-loops")
+// #pragma GCC target("sse,sse2,sse3,ssse3,sse4,popcnt,abm,mmx,avx,tune=native")
 
 #include <bits/stdc++.h>
 #include <ext/pb_ds/assoc_container.hpp>
@@ -15,10 +14,9 @@
 
 using namespace std;
 
-namespace std
-{
+namespace std {
 #define ar array
-#define sz(x) static_cast<int>((x).size())
+#define len(x) static_cast<int>((x).size())
 #define all(x) (x).begin(), (x).end()
 #define str(x) to_string(x)
 
@@ -40,8 +38,8 @@ namespace std
         return {std::forward<F>(f)};
     }
 
-//@Debugger
 #ifdef LOCAL
+    //@Debugger
     template <typename T>
     ostream &operator<<(ostream &os, const vector<T> &v)
     {
@@ -68,27 +66,17 @@ namespace std
 
     void flush_out() { cerr << endl; }
     template <typename H, typename... T>
-    void flush_out(H h, T... t)
-    {
-        cerr << ' ' << h << " | ";
-        flush_out(t...);
-    }
+    void flush_out(H h, T... t) { cerr << ' ' << h << " | "; flush_out(t...); }
 #define log(...) cerr << "[ " << #__VA_ARGS__ << " ] :", flush_out(__VA_ARGS__)
 #else
 #define log(...) (void)0x30
 #endif
 
-    template <typename T>
-    inline void mini(T &a, T b)
-    {
-        a = min(a, b);
-    }
-    template <typename T>
-    inline void maxi(T &a, T b) { a = max(a, b); }
+    template <typename T> inline void mini(T &a, T b) { a = min(a, b); }
+    template <typename T> inline void maxi(T &a, T b) { a = max(a, b); }
     template <class T>
-    class Random
-    {
-        static T range(T &a, T &b) { return a + rand() % (b - a + 1); }
+    class Random {
+        inline static T range(T &a, T &b) { return a + rand() % (b - a + 1); }
     };
     template <class K, class V>
     using table = __gnu_pbds::gp_hash_table<K, V>;
@@ -108,50 +96,55 @@ using pll = pair<ll, ll>;
 using vi = vector<int>;
 using vll = vector<ll>;
 
-const int mod = 1e9 + 7;
-const ld PI = 3.141592653589793238;
-
-ll dp[101][100001];
+const int mod = (int)1e9 + 7;
+const ld PI = 3.141592653589793238f;
 
 // overflows? index_of_of_bound? integer_overflows? read the problem?
-void test_case(const int &tc) {
-    int n, k; cin >> n >> k;
-    vector<ll> arr(n);
-    for (ll& i : arr) cin >> i;
+void test_case(const int &test_no) {
+    int N; cin >> N;
+    int K; cin >> K;
+    vector<int> a(N); for (int& i : a) cin >> i;
+    
+    vector<int> dp(K + 1);
+    dp[0] = 1;
 
-    for (int i = 0; i <= arr[0]; i++) {
-        dp[0][i] = 1; // no matter what k is, if n is 1, then there is only 1 way
-    }
+    for (int i = 1; i <= N; i++) {
+        vector<int> ndp(K + 1);
+        ndp[0] = 1;
+        vector<int> prefix;
 
-    for (int i = 1; i < n; i++) {
-        vector<int> prefix(k + 1);
-        for (int j = 0; j <= k; j++) {
-            prefix[j] = (dp[i - 1][j] + (j - 1 >= 0 ? prefix[j - 1] : 0)) % mod;
+        int sum = 0;
+        for (int k = 0; k <= K; k++) {
+            sum = (sum + dp[k]) % mod;
+            prefix.emplace_back(sum);
         }
-        for (int j = 0; j <= k; j++) {
-            // we can take or leave
-            if (j - arr[i] > 0) {
-                dp[i][j] = (prefix[j] + mod - prefix[j - arr[i] - 1]) % mod;
-            } else {
-                dp[i][j] = prefix[j];
-            }
+
+        for (int j = 1; j <= K; j++) {
+            int L = j - min(j, a[i - 1]);
+            int R = j;
+            // for (int k = 0; k <= min(j, a[i - 1]); k++) {
+                // dp[i][j] = (dp[i][j] + dp[i - 1][j - k]) % mod;
+            // }
+            
+            int interval = (prefix[R] - (L - 1 >= 0 ? prefix[L - 1] : 0) + mod) % mod;
+            ndp[j] = ((ndp[j] + interval) % mod + mod) % mod;
         }
+        dp = ndp;
     }
-    cout << dp[n - 1][k] << endl;
+    cout << dp[K] << '\n';
 }
 
-int main(int argc, char *argv[]) {
+int32_t main() {
     ios::sync_with_stdio(false);
+#ifndef LOCAL
     cin.tie(nullptr);
-
-    int _t = 1;
-    for (int _ = _t - 1; ~_; --_)
-    {
-        test_case(_);
+#endif
+    int T = 1; 
+    for (int test_no = 1; test_no <= T; ++test_no) {
+        test_case(test_no);
     }
-
 #ifdef LOCAL
-    cerr << "\nTime elapsed: " << 1.0 * clock() / CLOCKS_PER_SEC << "s.\n";
+    cerr << "\nTime elapsed: " << ld(clock()) / CLOCKS_PER_SEC << "s.\n";
 #endif
 }
 
